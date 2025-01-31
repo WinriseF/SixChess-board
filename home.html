@@ -44,7 +44,7 @@
             position: absolute;
             top: 50%;
             left: 50%;
-            transform: translate(-50%, -50%);
+            transform: translate(-50%, -50%);  
         }
         .black { background-color: black; }
         .white { background-color: white; border: 2px solid #000; }
@@ -60,7 +60,7 @@
     <div class="controls">
         <button onclick="resetGame()">重新开始</button>
         <button onclick="Loadplayer()">加载AI先手</button>
-        <button onclick="Loadplayer()">加载AI后手</button>
+        <button onclick="Loadplayer()">加载AI后手</button>  
     </div>
 
     <table class="board" id="board"></table>
@@ -72,11 +72,8 @@
         let gameOver = false;
         let boardState = Array(BOARD_SIZE).fill().map(() => Array(BOARD_SIZE).fill(null));
 
-        // 创建棋盘
-        function createBoard() {
+        function createBoard() {  
             const board = document.getElementById('board');
-            
-            // 创建顶部坐标行
             const topRow = document.createElement('tr');
             topRow.appendChild(createCoordinateCell(''));
             for (let i = 1; i <= BOARD_SIZE; i++) {
@@ -84,7 +81,6 @@
             }
             board.appendChild(topRow);
 
-            // 创建棋盘主体
             for (let row = 0; row < BOARD_SIZE; row++) {
                 const tr = document.createElement('tr');
                 tr.appendChild(createCoordinateCell(String.fromCharCode(65 + row)));
@@ -125,22 +121,17 @@
             const row = parseInt(cell.dataset.row);
             const col = parseInt(cell.dataset.col);
 
-            if (boardState[row][col]) return;
-
-            // 放置棋子
-            const stone = document.createElement('div');
-            stone.className = `stone ${currentPlayer}`;
+            if (boardState[row][col]) return;  
+            const stone = document.createElement('div');  
+            stone.className = `stone ${currentPlayer}`;  
             cell.appendChild(stone);
             boardState[row][col] = currentPlayer;
 
-            // 检查胜利
             if (checkWin(row, col)) {
                 gameOver = true;
                 setTimeout(() => alert(`${currentPlayer.toUpperCase()} 获胜!`), 10);
                 return;
             }
-
-            // 更新游戏状态
             movesLeft--;
             if (movesLeft === 0) {
                 currentPlayer = currentPlayer === 'black' ? 'white' : 'black';
@@ -150,10 +141,10 @@
 
         function checkWin(row, col) {
             const directions = [
-                [ [0, 1], [0, -1] ],   // 水平
-                [ [1, 0], [-1, 0] ],   // 垂直
-                [ [1, 1], [-1, -1] ],  // 主对角线
-                [ [1, -1], [-1, 1] ]   // 副对角线
+                [ [0, 1], [0, -1] ],   
+                [ [1, 0], [-1, 0] ],   
+                [ [1, 1], [-1, -1] ],  
+                [ [1, -1], [-1, 1] ]   
             ];
 
             return directions.some(direction => {
@@ -172,18 +163,14 @@
             });
         }
 
-        // 初始化游戏
         createBoard();
         function resetGame() {
-            // 清空棋盘
-            boardState = Array(BOARD_SIZE).fill().map(() => Array(BOARD_SIZE).fill(null));
+            boardState = Array(BOARD_SIZE).fill().map(() => Array(BOARD_SIZE).fill(null));  
             const board = document.getElementById('board');
             const cells = board.getElementsByClassName('cell');
             for (let cell of cells) {
-                cell.innerHTML = '';  // 清空每个单元格的内容
+                cell.innerHTML = '';
             }
-
-            // 重置游戏参数
             currentPlayer = 'black';
             movesLeft = 1;
             gameOver = false;

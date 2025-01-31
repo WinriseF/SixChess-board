@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>六子棋SixChess</title>
+    <style>
+        h1 {
+            text-align: center;
+            color: #333;
+            margin: 20px 0;
+        }
+        .controls {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        button {
+            padding: 8px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 8px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .board {
+            border-collapse: collapse;
+            margin: 20px auto;
+        }
+        .cell {
+            width: 30px;
+            height: 30px;
+            border: 2px solid #999;
+            text-align: center;
+            vertical-align: middle;
+            cursor: pointer;
+            position: relative;
+        }
+        .stone {
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+        .black { background-color: black; }
+        .white { background-color: white; border: 2px solid #000; }
+        .coordinate {
+            font-size: 12px;
+            color: #666;
+            padding: 2px;
+        }
+    </style>
+</head>
+<body>
+    <h1>六子棋SixChess</h1>
+    <div class="controls">
+        <button onclick="resetGame()">重新开始</button>
+        <button onclick="Loadplayer()">加载AI先手</button>
+        <button onclick="Loadplayer()">加载AI后手</button>
+    </div>
+
+    <table class="board" id="board"></table>
+
+    <script>
+        const BOARD_SIZE = 19;
+        let currentPlayer = 'black';
+        let movesLeft = 1;
+        let gameOver = false;
+        let boardState = Array(BOARD_SIZE).fill().map(() => Array(BOARD_SIZE).fill(null));
+
+        // 创建棋盘
+        function createBoard() {
+            const board = document.getElementById('board');
+            
+            // 创建顶部坐标行
+            const topRow = document.createElement('tr');
+            topRow.appendChild(createCoordinateCell(''));
+            for (let i = 1; i <= BOARD_SIZE; i++) {
+                topRow.appendChild(createCoordinateCell(i));
+            }
+            board.appendChild(topRow);
+
+            // 创建棋盘主体
+            for (let row = 0; row < BOARD_SIZE; row++) {
+                const tr = document.createElement('tr');
+                tr.appendChild(createCoordinateCell(String.fromCharCode(65 + row)));
+                
+                for (let col = 0; col < BOARD_SIZE; col++) {
+                    const td = document.createElement('td');
+                    td.className = 'cell';
+                    td.dataset.row = row;
+                    td.dataset.col = col;
+                    td.addEventListener('click', handleCellClick);
+                    tr.appendChild(td);
+                }
+                const rightCoordinate = createCoordinateCell(row + 1);
+                rightCoordinate.classList.add('coordinate-right');
+                tr.appendChild(rightCoordinate);
+
+                board.appendChild(tr);
+            }
+            const bottomRow = document.createElement('tr');
+            bottomRow.appendChild(createCoordinateCell(''));
+            for (let i = 1; i <= BOARD_SIZE; i++) {
+                bottomRow.appendChild(createCoordinateCell(String.fromCharCode(65 + i - 1)));
+            }
+            board.appendChild(bottomRow);
+        }
+
+        function createCoordinateCell(content) {
+            const td = document.createElement('td');
+            td.className = 'coordinate';
+            td.textContent = content;
+            return td;
+        }
+
+        function handleCellClick(event) {
+            if (gameOver) return;
+            
+            const cell = event.target;
+            const row = parseInt(cell.dataset.row);
+            const col = parseInt(cell.dataset.col);
+
+            if (boardState[row][col]) return;
+
+            // 放置棋子
+            const stone = document.createElement('div');
+            stone.className = `stone ${currentPlayer}`;
+            cell.appendChild(stone);
+            boardState[row][col] = currentPlayer;
+
+            // 检查胜利
+            if (checkWin(row, col)) {
+                gameOver = true;
+                setTimeout(() => alert(`${currentPlayer.toUpperCase()} 获胜!`), 10);
+                return;
+            }
+
+            // 更新游戏状态
+            movesLeft--;
+            if (movesLeft === 0) {
+                currentPlayer = currentPlayer === 'black' ? 'white' : 'black';
+                movesLeft = 2;
+            }
+        }
+
+        function checkWin(row, col) {
+            const directions = [
+                [ [0, 1], [0, -1] ],   // 水平
+                [ [1, 0], [-1, 0] ],   // 垂直
+                [ [1, 1], [-1, -1] ],  // 主对角线
+                [ [1, -1], [-1, 1] ]   // 副对角线
+            ];
+
+            return directions.some(direction => {
+                let count = 1;
+                direction.forEach(([dx, dy]) => {
+                    let x = row + dx;
+                    let y = col + dy;
+                    while (x >= 0 && x < BOARD_SIZE && y >= 0 && y < BOARD_SIZE && 
+                           boardState[x][y] === currentPlayer) {
+                        count++;
+                        x += dx;
+                        y += dy;
+                    }
+                });
+                return count >= 6;
+            });
+        }
+
+        // 初始化游戏
+        createBoard();
+        function resetGame() {
+            // 清空棋盘
+            boardState = Array(BOARD_SIZE).fill().map(() => Array(BOARD_SIZE).fill(null));
+            const board = document.getElementById('board');
+            const cells = board.getElementsByClassName('cell');
+            for (let cell of cells) {
+                cell.innerHTML = '';  // 清空每个单元格的内容
+            }
+
+            // 重置游戏参数
+            currentPlayer = 'black';
+            movesLeft = 1;
+            gameOver = false;
+        }
+        function Loadplayer() {
+            null;
+        }
+    </script>
+</body>
+</html>
